@@ -1,0 +1,19 @@
+{% extends '_base.html' %}
+{% block title %}Sorry, something went wrong :({% endblock %}
+{% block content %}
+<h1>{{ source }}</h1>
+
+<div id="error">
+    <h3>Error</h3>
+    <code><pre>{{ error|safe }}</pre></code>
+</div>
+
+<div id="error">
+    <h3>Stacktrace</h3>
+    <code><pre>{{ stacktrace|safe }}</pre></code>
+</div>
+<div id="context">
+    <h3>Context</h3>
+    <code><pre>{{ context|safe }}</pre></code>
+</div>
+{% endblock %}
