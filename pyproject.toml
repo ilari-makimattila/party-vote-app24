@@ -1,0 +1,60 @@
+[tool.poetry]
+name = "voting24"
+version = "0.1.0"
+description = ""
+authors = ["Ilari Mäkimattila <ilari@reboot.fi>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.111.0"
+pydantic = "^2.7.1"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2.0"
+pytest-xdist = "^3.6.1"
+ruff = "^0.4.3"
+mypy = "^1.10.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+preview = true
+select = ["ALL"]
+ignore = [
+    "ANN", "D",  # Don't require docstrings
+    "CPY",  # Don't require copyright notices
+    "TD", "FIX",  # Allow TODO comments
+    "ERA",  # allow commented out code
+    "S104", "S105", "S106",  # ignore "hardcoded passwords"
+    "SIM105",  # allow suppressing exceptions
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+    "S",    # ignore flake8-bandit violations
+    "T20",  # allow prints in tests
+    "ARG",  # allow unused args
+    "PL",   # allow magic values etc. in tests
+]
+
+[tool.pytest.ini_options]
+addopts = [
+    "-pno:cacheprovider",
+    "-nauto",
+    "--color=yes",
+]
+python_functions = "*should_* test_* *_test"
+testpaths = "tests"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+plugins = ["pydantic.mypy"]
