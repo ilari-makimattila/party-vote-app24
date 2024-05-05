@@ -1,9 +1,50 @@
+import pytest
+from pydantic import ValidationError
+
 from voting24.game.game import Choice, Game, Player, VoteItem
+
+
+def test_game_can_be_created() -> None:
+    game = Game.new(name="name")
+    assert game
+
+
+def test_game_key_will_be_generated_from_name() -> None:
+    game = Game.new(name="Is this correct?   Not really.")
+    assert game.key == "is-this-correct-not-really"
+
+
+def test_game_key_can_be_provided() -> None:
+    game = Game.new(name="x", key="this-is-correct")
+    assert game.key == "this-is-correct"
+
+
+def test_game_key_must_match_regex() -> None:
+    with pytest.raises(ValidationError):
+        Game.new(name="x", key="This should fail")
 
 
 def empty_game_points_should_be_empty() -> None:
     game = Game(key="key", name="name", items=[], players=[])
     assert game.points() == {}
+
+
+def game_vote_item_key_should_be_unique_by_key() -> None:
+    game = Game.new(name="name")
+    with pytest.raises(ValidationError):
+        game.items = [
+            VoteItem(key="key", text="text", options=[]),
+            VoteItem(key="key", text="text2", options=[]),
+        ]
+
+
+def game_vote_item_choices_should_be_unique_by_key() -> None:
+    vote_item = VoteItem(key="key", text="text", options=[])
+    with pytest.raises(ValidationError):
+        vote_item.options = [
+            Choice(key="key", text="text", value=1),
+            Choice(key="key", text="text", value=2),
+        ]
 
 
 def game_points_should_be_calculated() -> None:

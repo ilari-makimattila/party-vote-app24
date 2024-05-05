@@ -1,5 +1,5 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class Model(BaseModel):
-    pass
+    model_config = ConfigDict(validate_assignment=True)

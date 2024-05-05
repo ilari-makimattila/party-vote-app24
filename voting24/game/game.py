@@ -1,34 +1,72 @@
+import re
+from typing import Annotated, TypeVar
+
+from pydantic import AfterValidator, Field
+
 from voting24.game.model import Model
 
-Key = str
+GAME_KEY_REGEX = re.compile(r"^[\w-]+$")
+GAME_KEY_SANITIZE_REGEX = re.compile(r"[^\w-]+")
+
+T = TypeVar("T")
+
+
+def _unique_list_validator(items: list[T]) -> list[T]:
+    if len(set(items)) != len(items):
+        message = "items must be unique"
+        raise ValueError(message)
+    return items
+
+
+Key = Annotated[str, Field(pattern=GAME_KEY_REGEX, min_length=1, max_length=32)]
+Text = Annotated[str, Field(min_length=1, max_length=32)]
 Value = int
+UniqueList = Annotated[list[T], AfterValidator(_unique_list_validator)]
 
 
 class Choice(Model):
     key: Key
-    text: str
+    text: Text
     value: Value
-
-
-class VoteItem(Model):
-    key: Key
-    text: str
-    options: list[Choice]
 
     def __hash__(self) -> int:
         return hash(self.key)
 
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, Choice) and self.key == other.key
+
+
+class VoteItem(Model):
+    key: Key
+    text: Text
+    options: UniqueList[Choice]
+
+    def __hash__(self) -> int:
+        return hash(self.key)
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, VoteItem) and self.key == other.key
+
 
 class Player(Model):
-    name: str
+    name: Text
     votes: dict[Key, Key]
 
 
 class Game(Model):
     key: Key
-    name: str
-    items: list[VoteItem]
+    name: Text
+    items: UniqueList[VoteItem]
     players: list[Player]
+
+    @staticmethod
+    def new(name: Text, key: Key | None = None) -> "Game":
+        return Game(
+            key=key or GAME_KEY_SANITIZE_REGEX.sub("-", name.lower()).strip("-"),
+            name=name,
+            items=[],
+            players=[],
+        )
 
     def points(self) -> dict[VoteItem, Value]:
         return {
