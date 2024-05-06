@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup, Tag
 from fastapi.testclient import TestClient
+from httpx import Response
 
 from voting24.game.game import Key
 
@@ -7,9 +8,10 @@ from voting24.game.game import Key
 class GamePage:
     @classmethod
     def open(cls, testclient: TestClient, game_key: Key) -> "GamePage":
-        return cls(testclient.get(f"/game/{game_key}").text)
+        return cls(testclient.get(f"/game/{game_key}"))
 
-    def __init__(self, html: str) -> None:
+    def __init__(self, response: Response) -> None:
+        html = response.text
         print(html)
         self.html = BeautifulSoup(html, "html.parser")
         css = self.html.css

@@ -2,7 +2,13 @@
     <input type="hidden" name="game_key" value="{{game.key}}">
     <label>
         <span>Name</span>
-        <input type="text" name="player_name">
+        <input type="text" name="player_name" value="{{join.player_name if join else ''}}">
     </label>
+    {% if join and join.player_exists %}
+    <label>
+        <input type="checkbox" name="force" value="1" checked>
+        <span>Join as existing player</span>
+    </label>
+    {% endif %}
     <button type="submit">Join</button>
 </form>

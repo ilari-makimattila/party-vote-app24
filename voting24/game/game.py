@@ -52,6 +52,10 @@ class Player(Model):
     name: Text
     votes: dict[Key, Key]
 
+    @classmethod
+    def new(cls, name: Text) -> "Player":
+        return Player(name=name, votes={})
+
 
 class Game(Model):
     key: Key
