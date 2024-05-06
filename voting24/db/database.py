@@ -20,6 +20,13 @@ class PlayerAlreadyExistsError(DatabaseError):
         self.player_name = player_name
 
 
+class PlayerNotFoundError(DatabaseError):
+    def __init__(self, player_name: str, game_name: str) -> None:
+        super().__init__(f"Player {player_name} not found in game {game_name}")
+        self.player_name = player_name
+        self.game_name = game_name
+
+
 class Database(ABC):
     @abstractmethod
     def save_game(self, game: Game) -> None:
@@ -33,6 +40,10 @@ class Database(ABC):
     def join_game(self, key: Key, player_name: str, *, join_as_existing: bool = False) -> None:
         raise NotImplementedError
 
+    @abstractmethod
+    def vote(self, player_name: str, game_key: Key, item_key: Key, vote_key: Key) -> None:
+        raise NotImplementedError
+
 
 class InMemoryDatabase(Database):
     def __init__(self, games: dict[Key, Game] | None = None) -> None:
@@ -42,13 +53,22 @@ class InMemoryDatabase(Database):
         self.games[game.key] = game
 
     def load_game(self, key: Key) -> Game:
-        return self.games[key]
-
-    def join_game(self, key: Key, player_name: str, *, join_as_existing: bool = False) -> None:
         try:
-            game = self.games[key]
-            if not join_as_existing and player_name in (player.name for player in game.players):
-                raise PlayerAlreadyExistsError(game.name, player_name)
-            self.games[key].players.append(Player.new(name=player_name))
+            return self.games[key]
         except KeyError:
             raise GameNotFoundError(key) from None
+
+    def join_game(self, key: Key, player_name: str, *, join_as_existing: bool = False) -> None:
+        game = self.load_game(key)
+        if not join_as_existing and player_name in (player.name for player in game.players):
+            raise PlayerAlreadyExistsError(game.name, player_name)
+        self.games[key].players.append(Player.new(name=player_name))
+
+    def vote(self, player_name: str, game_key: Key, item_key: Key, vote_key: Key) -> None:
+        game = self.load_game(game_key)
+        for player in game.players:
+            if player.name == player_name:
+                player.votes[item_key] = vote_key
+                break
+        else:
+            raise PlayerNotFoundError(player_name, game.name)

@@ -121,3 +121,29 @@ def game_points_should_be_calculated_when_items_have_been_not_voted() -> None:
         game.items[0]: 0,
         game.items[1]: 2,
     }
+
+
+def game_next_unvoted_item_should_return_first_unvoted_item() -> None:
+    game = Game(
+        key="key",
+        name="name",
+        items=[
+            VoteItem(key="itemkey", text="text", options=[
+                Choice(key="choicekey1", text="text", value=1),
+                Choice(key="choicekey2", text="text", value=2),
+            ]),
+            VoteItem(key="itemkey2", text="text", options=[
+                Choice(key="choicekey1", text="text", value=1),
+                Choice(key="choicekey2", text="text", value=2),
+            ]),
+
+        ],
+        players=[
+            Player(name="name 1", votes={
+                "itemkey": "choicekey2",
+            }),
+            Player(name="name 2", votes={}),
+        ],
+    )
+    assert game.next_unvoted_item("name 1") == "itemkey2"
+    assert game.next_unvoted_item("name 2") == "itemkey"

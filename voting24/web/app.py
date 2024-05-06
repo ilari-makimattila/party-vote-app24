@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from .routes import game
+from .routes import game, play
 
 app = FastAPI(
     title="Voting app 2024",
@@ -8,3 +8,4 @@ app = FastAPI(
 )
 
 app.include_router(game.router)
+app.include_router(play.router)
