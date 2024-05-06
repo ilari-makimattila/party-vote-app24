@@ -20,6 +20,10 @@ mypy = "^1.10.0"
 beautifulsoup4 = "^4.12.3"
 types-beautifulsoup4 = "^4.12.0.20240504"
 
+
+[tool.poetry.group.utils.dependencies]
+pytest-watcher = "^0.4.2"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
