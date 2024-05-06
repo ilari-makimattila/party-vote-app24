@@ -16,6 +16,13 @@ def main_game_page_should_contain_game_name_in_the_title(testclient: TestClient,
 
 def main_game_page_should_contain_join_form(testclient: TestClient, game: Game) -> None:
     page = GamePage.open(testclient, game.key)
-    form = page.join_form()
+    form = page.join_form_fields()
     assert form["game_key"].attrs["value"] == game.key
     assert form["player_name"]
+
+
+def main_game_page_should_contain_join_form_with_correct_target(testclient: TestClient, game: Game) -> None:
+    page = GamePage.open(testclient, game.key)
+    form = page.join_form()
+    assert form.attrs["action"] == f"/game/{game.key}/join"
+    assert form.attrs["method"] == "POST"

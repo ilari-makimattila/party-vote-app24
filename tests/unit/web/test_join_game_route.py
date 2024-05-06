@@ -29,7 +29,7 @@ def join_game_post_should_return_400_and_show_the_form_with_force_if_player_alre
     )
     assert response.status_code == 400
     page = GamePage(response)
-    form = page.join_form()
+    form = page.join_form_fields()
     assert form["player_name"].attrs["value"] == "A player"
     assert form["force"].attrs["checked"] is not None
     assert form["force"].attrs["value"] == "1"

@@ -29,7 +29,11 @@ class GamePage:
         assert h1
         return str(h1.text)
 
-    def join_form(self) -> dict[str, Tag]:
+    def join_form_fields(self) -> dict[str, Tag]:
+        form = self.join_form()
+        return {inp.attrs["name"]: inp for inp in form.select("input")}
+
+    def join_form(self) -> Tag:
         form = self.css.select_one("#join-form")
         assert form
-        return {inp.attrs["name"]: inp for inp in form.select("input")}
+        return form
