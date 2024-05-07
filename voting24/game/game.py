@@ -38,6 +38,7 @@ class Choice(Model):
 
 class VoteItem(Model):
     key: Key
+    title: Text
     text: Text
     options: UniqueList[Choice]
 

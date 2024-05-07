@@ -33,13 +33,13 @@ def game_vote_item_key_should_be_unique_by_key() -> None:
     game = Game.new(name="name")
     with pytest.raises(ValidationError):
         game.items = [
-            VoteItem(key="key", text="text", options=[]),
-            VoteItem(key="key", text="text2", options=[]),
+            VoteItem(key="key", title="text", text="text", options=[]),
+            VoteItem(key="key", title="text2", text="text2", options=[]),
         ]
 
 
 def game_vote_item_choices_should_be_unique_by_key() -> None:
-    vote_item = VoteItem(key="key", text="text", options=[])
+    vote_item = VoteItem(key="key", title="text", text="text", options=[])
     with pytest.raises(ValidationError):
         vote_item.options = [
             Choice(key="key", text="text", value=1),
@@ -52,7 +52,7 @@ def game_points_should_be_calculated() -> None:
         key="key",
         name="name",
         items=[
-            VoteItem(key="itemkey", text="text", options=[
+            VoteItem(key="itemkey", title="text", text="text", options=[
                 Choice(key="choicekey1", text="text", value=1),
                 Choice(key="choicekey2", text="text", value=2),
                 Choice(key="choicekey3", text="text", value=3),
@@ -77,7 +77,7 @@ def game_points_should_be_calculated_when_all_players_have_not_voted() -> None:
         key="key",
         name="name",
         items=[
-            VoteItem(key="itemkey", text="text", options=[
+            VoteItem(key="itemkey", title="text", text="text", options=[
                 Choice(key="choicekey1", text="text", value=1),
                 Choice(key="choicekey2", text="text", value=2),
                 Choice(key="choicekey3", text="text", value=3),
@@ -100,11 +100,11 @@ def game_points_should_be_calculated_when_items_have_been_not_voted() -> None:
         key="key",
         name="name",
         items=[
-            VoteItem(key="itemkey", text="text", options=[
+            VoteItem(key="itemkey", title="text", text="text", options=[
                 Choice(key="choicekey1", text="text", value=1),
                 Choice(key="choicekey2", text="text", value=2),
             ]),
-            VoteItem(key="itemkey2", text="text", options=[
+            VoteItem(key="itemkey2", title="text", text="text", options=[
                 Choice(key="choicekey1", text="text", value=1),
                 Choice(key="choicekey2", text="text", value=2),
             ]),
@@ -128,11 +128,11 @@ def game_next_unvoted_item_should_return_first_unvoted_item() -> None:
         key="key",
         name="name",
         items=[
-            VoteItem(key="itemkey", text="text", options=[
+            VoteItem(key="itemkey", title="text", text="text", options=[
                 Choice(key="choicekey1", text="text", value=1),
                 Choice(key="choicekey2", text="text", value=2),
             ]),
-            VoteItem(key="itemkey2", text="text", options=[
+            VoteItem(key="itemkey2", title="text", text="text", options=[
                 Choice(key="choicekey1", text="text", value=1),
                 Choice(key="choicekey2", text="text", value=2),
             ]),

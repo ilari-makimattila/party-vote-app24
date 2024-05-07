@@ -32,11 +32,11 @@ def database(app: FastAPI) -> Generator[Database, None, None]:
 def game(database: Database) -> Game:
     g = Game.new(name="default game name")
     g.items = [
-        VoteItem(key="key1", text="Vote item 1", options=[
+        VoteItem(key="key1", title="Vote item 1", text="Vote item 1 description", options=[
             Choice(key="choicekey1", text="Choice A", value=1),
             Choice(key="choicekey2", text="Choice B", value=2),
         ]),
-        VoteItem(key="key2", text="Vote item 2", options=[
+        VoteItem(key="key2", title="Vote item 2", text="Vote item 2 description", options=[
             Choice(key="choicekey1", text="Choice A", value=1),
             Choice(key="choicekey2", text="Choice B", value=2),
         ]),
