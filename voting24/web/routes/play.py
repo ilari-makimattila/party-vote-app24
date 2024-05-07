@@ -50,7 +50,7 @@ def forward_to_unvoted(
 def play_item(
     game: Annotated[Game, Depends(get_game)],
     player_name: Annotated[str, Depends(get_player)],
-    _template: Annotated[TemplateResponse, Depends(template)],
+    template: Annotated[TemplateResponse, Depends(template)],
     key: Key,
     item_key: Key,
 ) -> Response:
@@ -61,13 +61,12 @@ def play_item(
     if not item:
         raise HTTPException(status_code=404, detail=f"Item {item_key} not found")
 
-    raise NotImplementedError
-    # return template(
-    #     "game_item.html",
-    #     {
-    #         "game": game,
-    #         "item": item,
-    #         "player_name": player_name,
-    #         "player": next((player for player in game.players if player.name == player_name), None),
-    #     },
-    # )
+    return template(
+        "game_item.html",
+        {
+            "game": game,
+            "item": item,
+            "player_name": player_name,
+            "player": next((player for player in game.players if player.name == player_name), None),
+        },
+    )

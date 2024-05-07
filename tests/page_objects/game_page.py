@@ -1,28 +1,14 @@
-from bs4 import BeautifulSoup, Tag
+from bs4 import Tag
 from fastapi.testclient import TestClient
-from httpx import Response
 
+from tests.page_objects.base import PageBase
 from voting24.game.game import Key
 
 
-class GamePage:
+class GamePage(PageBase):
     @classmethod
     def open(cls, testclient: TestClient, game_key: Key) -> "GamePage":
         return cls(testclient.get(f"/game/{game_key}"))
-
-    def __init__(self, response: Response) -> None:
-        html = response.text
-        print(html)
-        self.html = BeautifulSoup(html, "html.parser")
-        css = self.html.css
-        assert css
-        self.css = css
-
-    def title(self) -> str:
-        t = self.html.title
-        assert t
-        assert t.string
-        return t.string
 
     def name(self) -> str:
         h1 = self.css.select_one("h1")

@@ -1,0 +1,12 @@
+{% extends "_base.html" %}
+{% block title %}{{game.name}} - {{item.title}}{% endblock %}
+
+{% block content %}
+<h1>{{item.title}}</h1>
+<div><p>{{item.text}}</p></div>
+
+<div id="vote-container">
+    {% include "partials/vote.html" %}
+</div>
+
+{% endblock %}

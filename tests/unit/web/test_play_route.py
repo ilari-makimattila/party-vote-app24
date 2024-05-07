@@ -1,5 +1,6 @@
 from fastapi.testclient import TestClient
 
+from tests.page_objects.game_item_page import GameItemPage
 from voting24.db.database import Database
 from voting24.game.game import Game
 
@@ -95,3 +96,50 @@ def play_item_page_should_return_404_if_item_does_not_exist(
         cookies={"player_name": "My Name"},
     )
     assert response.status_code == 404
+
+
+def play_item_page_should_show_vote_item_in_title(testclient: TestClient, database: Database, game: Game) -> None:
+    database.join_game(game.key, "My Name")
+    response = testclient.get(
+        f"/game/{game.key}/item/key1",
+        follow_redirects=False,
+        cookies={"player_name": "My Name"},
+    )
+    assert response.status_code == 200
+    page = GameItemPage(response)
+    assert "Vote item 1" in page.title()
+
+
+def play_item_page_should_show_vote_form(testclient: TestClient, database: Database, game: Game) -> None:
+    database.join_game(game.key, "My Name")
+    response = testclient.get(
+        f"/game/{game.key}/item/{game.items[0].key}",
+        follow_redirects=False,
+        cookies={"player_name": "My Name"},
+    )
+    assert response.status_code == 200
+    page = GameItemPage(response)
+    vote_form = page.vote_form()
+    game_key_input = vote_form.select_one("input[name=game_key]")
+    item_key_input = vote_form.select_one("input[name=item_key]")
+    assert game_key_input
+    assert item_key_input
+    assert game_key_input.attrs["value"] == game.key
+    assert item_key_input.attrs["value"] == game.items[0].key
+    votes = vote_form.select("input[name=vote]")
+    for (vote_tag, choice) in zip(votes, game.items[0].options, strict=True):
+        assert vote_tag.attrs["value"] == choice.key
+
+
+def play_item_page_vote_form_should_have_correct_route(testclient: TestClient, database: Database, game: Game) -> None:
+    database.join_game(game.key, "My Name")
+    response = testclient.get(
+        f"/game/{game.key}/item/{game.items[1].key}",
+        follow_redirects=False,
+        cookies={"player_name": "My Name"},
+    )
+    assert response.status_code == 200
+    page = GameItemPage(response)
+    vote_form = page.vote_form()
+    assert vote_form.attrs["action"] == f"/game/{game.key}/item/{game.items[1].key}"
+    assert vote_form.attrs["method"] == "POST"

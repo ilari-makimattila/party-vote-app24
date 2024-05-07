@@ -1,0 +1,13 @@
+<form id="vote-form" method="POST" action="/game/{{game.key}}/item/{{item.key}}">
+    <input type="hidden" name="game_key" value="{{game.key}}">
+    <input type="hidden" name="item_key" value="{{item.key}}">
+    <div class="segmented-control">
+        {% for option in item.options %}
+        <label>
+            <input type="radio" name="vote" value="{{option.key}}">
+            <span>{{option.text}}</span>
+        </label>
+        {% endfor %}
+    </div>
+    <button type="submit">Vote</button>
+</form>
