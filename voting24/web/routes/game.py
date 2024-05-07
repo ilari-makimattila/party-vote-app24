@@ -48,3 +48,15 @@ def join_game(
     response = RedirectResponse(f"/game/{key}/item", status_code=303)
     response.set_cookie("player_name", player_name, httponly=True)
     return response
+
+
+@router.get("/game/{key}/results")
+def get_results(
+    database: Annotated[Database, Depends(get_database)],
+    template: Annotated[TemplateResponse, Depends(template)],
+    key: Key,
+) -> Response:
+    try:
+        return template("game_results.html", {"game": database.load_game(key)})
+    except GameNotFoundError:
+        return Response(status_code=404, content=f"Game {key} not found")

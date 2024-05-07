@@ -37,7 +37,7 @@ class Database(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def join_game(self, key: Key, player_name: str, *, join_as_existing: bool = False) -> None:
+    def join_game(self, key: Key, player_name: str, *, join_as_existing: bool = False) -> Player:
         raise NotImplementedError
 
     @abstractmethod
@@ -58,11 +58,13 @@ class InMemoryDatabase(Database):
         except KeyError:
             raise GameNotFoundError(key) from None
 
-    def join_game(self, key: Key, player_name: str, *, join_as_existing: bool = False) -> None:
+    def join_game(self, key: Key, player_name: str, *, join_as_existing: bool = False) -> Player:
         game = self.load_game(key)
         if not join_as_existing and player_name in (player.name for player in game.players):
             raise PlayerAlreadyExistsError(game.name, player_name)
-        self.games[key].players.append(Player.new(name=player_name))
+        player = Player.new(name=player_name)
+        self.games[key].players.append(player)
+        return player
 
     def vote(self, player_name: str, game_key: Key, item_key: Key, vote_key: Key) -> None:
         game = self.load_game(game_key)

@@ -4,6 +4,7 @@ from httpx import Response
 
 class PageBase:
     def __init__(self, response: Response) -> None:
+        self.response = response
         html = response.text
         print(html)
         self.html = BeautifulSoup(html, "html.parser")
