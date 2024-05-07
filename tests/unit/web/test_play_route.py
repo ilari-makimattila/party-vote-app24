@@ -143,3 +143,85 @@ def play_item_page_vote_form_should_have_correct_route(testclient: TestClient, d
     vote_form = page.vote_form()
     assert vote_form.attrs["action"] == f"/game/{game.key}/item/{game.items[1].key}"
     assert vote_form.attrs["method"] == "POST"
+
+
+def post_play_item_vote_should_return_404_if_game_is_not_found(testclient: TestClient, game: Game) -> None:
+    response = testclient.post(
+        f"/game/somenonexistinggame/item/{game.items[1].key}",
+        follow_redirects=False,
+        cookies={"player_name": "My Name"},
+        data={"game_key": game.key, "item_key": game.items[1].key, "vote": game.items[1].options[0].key},
+    )
+    assert response.status_code == 404
+
+
+def post_play_item_vote_should_return_404_if_item_is_not_found(
+    testclient: TestClient,
+    database: Database,
+    game: Game,
+) -> None:
+    database.join_game(game.key, "My Name")
+    response = testclient.post(
+        f"/game/{game.key}/item/somenonexistingitem",
+        follow_redirects=False,
+        cookies={"player_name": "My Name"},
+        data={"game_key": game.key, "item_key": game.items[1].key, "vote": game.items[1].options[0].key},
+    )
+    assert response.status_code == 404
+
+
+def post_play_item_vote_should_return_303_to_game_if_player_does_not_exist(testclient: TestClient, game: Game) -> None:
+    response = testclient.post(
+        f"/game/{game.key}/item/{game.items[1].key}",
+        follow_redirects=False,
+        cookies={"player_name": "My Name"},
+        data={"game_key": game.key, "item_key": game.items[1].key, "vote": game.items[1].options[0].key},
+    )
+    assert response.status_code == 303
+    assert response.headers["Location"] == f"/game/{game.key}"
+
+
+def post_play_item_vote_should_save_the_vote(testclient: TestClient, database: Database, game: Game) -> None:
+    database.join_game(game.key, "My Name")
+    testclient.post(
+        f"/game/{game.key}/item/{game.items[1].key}",
+        follow_redirects=False,
+        cookies={"player_name": "My Name"},
+        data={"game_key": game.key, "item_key": game.items[1].key, "vote": game.items[1].options[0].key},
+    )
+    player = database.load_game(game.key).player("My Name")
+    assert player
+    assert player.votes == {game.items[1].key: game.items[1].options[0].key}
+
+
+def post_play_item_vote_should_return_303_to_next_unvoted_game_item_page(
+    testclient: TestClient,
+    database: Database,
+    game: Game,
+) -> None:
+    database.join_game(game.key, "My Name")
+    response = testclient.post(
+        f"/game/{game.key}/item/{game.items[0].key}",
+        follow_redirects=False,
+        cookies={"player_name": "My Name"},
+        data={"game_key": game.key, "item_key": game.items[0].key, "vote": game.items[0].options[0].key},
+    )
+    assert response.status_code == 303
+    assert response.headers["Location"] == f"/game/{game.key}/item/{game.items[1].key}"
+
+
+def post_play_item_vote_should_return_303_to_results_if_all_items_have_been_voted(
+    testclient: TestClient,
+    database: Database,
+    game: Game,
+) -> None:
+    database.join_game(game.key, "My Name")
+    database.vote("My Name", game.key, game.items[0].key, game.items[0].options[0].key)
+    response = testclient.post(
+        f"/game/{game.key}/item/{game.items[1].key}",
+        follow_redirects=False,
+        cookies={"player_name": "My Name"},
+        data={"game_key": game.key, "item_key": game.items[1].key, "vote": game.items[1].options[0].key},
+    )
+    assert response.status_code == 303
+    assert response.headers["Location"] == f"/game/{game.key}/results"

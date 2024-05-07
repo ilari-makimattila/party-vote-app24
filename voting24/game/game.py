@@ -89,9 +89,12 @@ class Game(Model):
             in self.items
         }
 
-    def next_unvoted_item(self, player_name: Text) -> Key:
+    def next_unvoted_item(self, player_name: Text) -> Key | None:
         votes = next((player.votes for player in self.players if player.name == player_name), {})
         for item in self.items:
             if item.key not in votes:
                 return item.key
-        return self.items[0].key
+        return None
+
+    def player(self, player_name: Text) -> Player | None:
+        return next((player for player in self.players if player.name == player_name), None)

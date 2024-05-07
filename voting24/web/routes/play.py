@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import Cookie, Depends, HTTPException, Response
+from fastapi import Cookie, Depends, Form, HTTPException, Response
 from fastapi.responses import RedirectResponse
 from fastapi.routing import APIRouter
 
@@ -70,3 +70,27 @@ def play_item(
             "player": next((player for player in game.players if player.name == player_name), None),
         },
     )
+
+
+@router.post("/item/{item_key}")
+def vote_item(
+    game: Annotated[Game, Depends(get_game)],
+    player_name: Annotated[str, Depends(get_player)],
+    item_key: Key,
+    vote: Annotated[Key, Form()],
+    database: Annotated[Database, Depends(get_database)],
+) -> Response:
+    player = game.player(player_name)
+    if player is None:
+        return RedirectResponse(f"/game/{game.key}", status_code=303)
+
+    item = next((item for item in game.items if item.key == item_key), None)
+    if not item:
+        raise HTTPException(status_code=404, detail=f"Item {item_key} not found in game {game.name}")
+
+    database.vote(player_name, game.key, item_key, vote)
+
+    next_unvoted_item = game.next_unvoted_item(player_name)
+    if not next_unvoted_item:
+        return RedirectResponse(f"/game/{game.key}/results", status_code=303)
+    return RedirectResponse(f"/game/{game.key}/item/{next_unvoted_item}", status_code=303)
