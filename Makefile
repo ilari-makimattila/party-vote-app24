@@ -14,3 +14,6 @@ format:
 
 test:
 	@poetry run pytest
+
+watchtest:
+	@poetry run ptw . --patterns '*.py,*.toml,*.html'
