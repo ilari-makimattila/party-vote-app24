@@ -1,8 +1,19 @@
+{% set points = game.points() | dictsort(false, 'value', reverse=True) %}
+{% set max_score = points[0][1] %}
+{% set min_score = points[-1][1] %}
 <div id="game-results">
-    {% for key, value in game.points() | dictsort(false, 'value', reverse=True) %}
-    <div class="result">
-        <h3 class="title"><a class="goto item" href="/game/{{game.key}}/item/{{key.key}}">{{key.title}}</a></h3>
-        <span class="score">{{value}}</span>
-    </div>
-    {% endfor %}
+    <table>
+        <tbody>
+        {% for key, value in points %}
+        <tr class="result">
+            <th class="title"><a class="goto item" href="/game/{{game.key}}/item/{{key.key}}">{{key.title}}</a></th>
+            <td class="chart">
+                <progress class="losing" value="{{value | abs if value < 0 else 0}}" max="{{min_score | abs}}"></progress>
+                <progress class="winning" value="{{value if value > 0 else 0}}" max="{{max_score}}"></progress>
+            </td>
+            <td class="score">{{value}}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 </div>

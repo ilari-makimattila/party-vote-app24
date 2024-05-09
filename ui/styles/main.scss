@@ -1,1 +1,48 @@
 @use "../node_modules/@picocss/pico/scss/pico";
+
+
+#game-results {
+    .title {
+        white-space: nowrap;
+    }
+    .chart {
+        display: flex;
+        justify-content: center;
+
+        .losing {
+            &::-moz-progress-bar, &::-webkit-progress-value {
+                background-color: var(--pico-del-color);
+            }
+            transform: rotate(180deg);
+        }
+        .winning {
+            &::-moz-progress-bar, &::-webkit-progress-value {
+                background-color: var(--pico-ins-color);
+            }
+        }
+    }
+}
+
+.segmented-control {
+    display: flex;
+    justify-content: center;
+    gap: var(--pico-form-element-spacing-horizontal);
+    margin-bottom: var(--pico-form-element-spacing-vertical);
+
+    input[type="radio"] {
+        display: none;
+    }
+
+    label {
+        cursor: pointer;
+        padding: 0.5rem 1rem;
+        color: var(--pico-switch-color);
+        background-color: var(--pico-switch-background-color);
+        border: var(--pico-border-width) solid var(--pico-border-color);
+        border-radius: var(--pico-border-radius);
+    }
+
+    label:has(input[type="radio"]:checked) {
+        background-color: var(--pico-switch-checked-background-color);
+    }
+}
