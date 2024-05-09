@@ -110,6 +110,20 @@ def play_item_page_should_show_vote_item_in_title(testclient: TestClient, databa
     assert "Vote item 1" in page.title()
 
 
+def play_item_page_should_set_custom_styles(testclient: TestClient, database: Database, game: Game) -> None:
+    game.css = "body { color: red; }"
+    database.join_game(game.key, "My Name")
+    testclient.cookies.set("player_name", "My Name")
+    response = testclient.get(
+        f"/game/{game.key}/item/key1",
+        follow_redirects=False,
+    )
+    assert response.status_code == 200
+    page = GameItemPage(response)
+    stylesheets = page.css.select("head > link[rel=stylesheet]")
+    next(s for s in stylesheets if s.attrs["href"] == f"/game/{game.key}/custom.css")
+
+
 def play_item_page_should_show_vote_item_icon_when_set(testclient: TestClient, database: Database, game: Game) -> None:
     database.join_game(game.key, "My Name")
     testclient.cookies.set("player_name", "My Name")

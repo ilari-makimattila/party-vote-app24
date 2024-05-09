@@ -84,6 +84,7 @@ class Player(Model):
 class Game(Model):
     key: Key
     name: Text
+    css: Text | None = None
     items: UniqueList[VoteItem]
     players: list[Player]
 

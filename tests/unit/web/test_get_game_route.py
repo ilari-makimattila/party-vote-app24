@@ -36,3 +36,15 @@ def main_game_page_should_respond_with_422_if_game_key_is_invalid(testclient: Te
 def main_game_page_should_respond_with_422_if_game_key_is_too_long(testclient: TestClient) -> None:
     response = testclient.get("/game/" + "a" * 100)
     assert response.status_code == 422
+
+
+def main_game_css_should_respond_with_404_if_game_has_no_style(testclient: TestClient, game: Game) -> None:
+    response = testclient.get(f"/game/{game.key}/custom.css")
+    assert response.status_code == 404
+
+
+def main_game_css_should_respond_with_200_if_game_has_style(testclient: TestClient, game: Game) -> None:
+    game.css = "body { color: red; }"
+    response = testclient.get(f"/game/{game.key}/custom.css")
+    assert response.status_code == 200
+    assert response.text == "body { color: red; }"

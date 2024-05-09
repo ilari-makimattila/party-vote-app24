@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import Depends, Form, Response
+from fastapi import Depends, Form, HTTPException, Response
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.routing import APIRouter
 
@@ -72,3 +72,17 @@ def get_results_htmx(
         return template("partials/game_results.html", {"game": database.load_game(key)})
     except GameNotFoundError:
         return Response(status_code=404, content=f"Game {key} not found")
+
+
+@router.get("/game/{key}/custom.css")
+def get_custom_css(
+    database: Annotated[Database, Depends(get_database)],
+    key: Key,
+) -> Response:
+    try:
+        game = database.load_game(key)
+    except GameNotFoundError:
+        raise HTTPException(status_code=404, detail=f"Game {key} not found") from None
+    if not game.css:
+        raise HTTPException(status_code=404, detail=f"Game {key} has no custom CSS") from None
+    return Response(content=game.css, media_type="text/css")
