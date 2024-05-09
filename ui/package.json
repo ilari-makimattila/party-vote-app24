@@ -1,0 +1,17 @@
+{
+  "name": "voting24",
+  "version": "1.0.0",
+  "private": true,
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "description": "",
+  "dependencies": {
+    "@picocss/pico": "^2.0.6",
+    "sass": "^1.77.0"
+  }
+}

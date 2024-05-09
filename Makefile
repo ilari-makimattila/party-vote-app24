@@ -1,5 +1,6 @@
 bootstrap:
 	@poetry install
+	@(cd ui && npm install)
 
 typecheck:
 	@poetry run mypy .
