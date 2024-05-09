@@ -1,3 +1,4 @@
+import logging
 import subprocess  # noqa: S404
 from pathlib import Path
 from typing import Annotated
@@ -23,8 +24,11 @@ def _render(file_path: Path) -> str:
         capture_output=True,
         text=True,
         cwd=str(_ui_path),
-        check=True,
+        check=False,
     )
+    if result.returncode != 0:
+        logging.error("sass error: %s", result.stderr)
+        raise HTTPException(status_code=500, detail=result.stderr)
     return result.stdout
 
 
