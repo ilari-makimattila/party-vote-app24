@@ -3,8 +3,6 @@
 
 {% block content %}
 <h1>{{game.name}}</h1>
-<h2>{% if item.icon %}<span class="item-icon">{{item.icon}}</span> {% endif %}{{item.title}}</h2>
-<div><p>{{item.text}}</p></div>
 
 {% with %}
 {% set prev_item = game.previous_item(item) %}
@@ -21,6 +19,10 @@
     </ul>
 </nav>
 {% endwith %}
+
+<h2>{% if item.icon %}<span class="item-icon">{{item.icon}}</span> {% endif %}{{item.title}}</h2>
+{% if item.image_url %}<img class="item-image" src="{{item.image_url}}" alt="{{item.title}}">{% endif %}
+<div><p>{{item.text}}</p></div>
 
 <div id="vote-container">
     {% include "partials/vote.html" %}

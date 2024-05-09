@@ -125,6 +125,38 @@ def play_item_page_should_show_vote_item_icon_when_set(testclient: TestClient, d
     assert "♥" in icon.text
 
 
+def play_item_page_should_not_show_vote_item_image_when_not_set(
+    testclient: TestClient,
+    database: Database,
+    game: Game,
+) -> None:
+    database.join_game(game.key, "My Name")
+    testclient.cookies.set("player_name", "My Name")
+    response = testclient.get(
+        f"/game/{game.key}/item/key1",
+        follow_redirects=False,
+    )
+    assert response.status_code == 200
+    page = GameItemPage(response)
+    img = page.vote_item_image()
+    assert not img
+
+
+def play_item_page_should_show_vote_item_image_when_set(testclient: TestClient, database: Database, game: Game) -> None:
+    database.join_game(game.key, "My Name")
+    testclient.cookies.set("player_name", "My Name")
+    game.items[0].image_url = "https://example.com/foo.png"
+    response = testclient.get(
+        f"/game/{game.key}/item/key1",
+        follow_redirects=False,
+    )
+    assert response.status_code == 200
+    page = GameItemPage(response)
+    img = page.vote_item_image()
+    assert img
+    assert "https://example.com/foo.png" in img.attrs["src"]
+
+
 def play_item_page_should_show_vote_form(testclient: TestClient, database: Database, game: Game) -> None:
     database.join_game(game.key, "My Name")
     testclient.cookies.set("player_name", "My Name")

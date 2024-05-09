@@ -26,3 +26,6 @@ class GameItemPage(PageBase):
 
     def vote_item_icon(self) -> Tag | None:
         return self.css.select_one(".item-icon")
+
+    def vote_item_image(self) -> Tag | None:
+        return self.css.select_one(".item-image")

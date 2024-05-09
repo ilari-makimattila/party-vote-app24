@@ -48,12 +48,20 @@ class VoteItem(Model):
     options: UniqueList[Choice]
 
     @classmethod
-    def new(cls, title: Text, text: Text, options: list[Choice], icon: Char | None = None) -> "VoteItem":
+    def new(  # noqa: PLR0913  # this is a convenience constsructor
+        cls,
+        title: Text,
+        text: Text,
+        options: list[Choice],
+        icon: Char | None = None,
+        image_url: Text | None = None,
+    ) -> "VoteItem":
         return VoteItem(
             key=GAME_KEY_SANITIZE_REGEX.sub("-", title.lower()).strip("-"),
             title=title,
             text=text,
             icon=icon,
+            image_url=image_url,
             options=options,
         )
 
