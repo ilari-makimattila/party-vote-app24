@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 
 from tests.page_objects.base import PageBase
-from voting24.game.game import Key
+from voting24.game.game import Key, Text, Value
 
 
 class GameResultsPage(PageBase):
@@ -13,3 +13,17 @@ class GameResultsPage(PageBase):
         h1 = self.css.select_one("h1")
         assert h1
         return str(h1.text)
+
+    def results(self) -> list[tuple[Text, Value]]:
+        result_tags = self.css.select("#game-results .result")
+        assert result_tags
+        results = []
+
+        for result_tag in result_tags:
+            title = result_tag.select_one(".title")
+            assert title
+            score = result_tag.select_one(".score")
+            assert score
+            results.append((title.text, int(score.text)))
+
+        return results
