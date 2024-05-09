@@ -1,4 +1,12 @@
-@use "../node_modules/@picocss/pico/scss/pico";
+@use "../node_modules/@picocss/pico/scss/pico" with (
+    $theme-color: "indigo"
+);
+
+
+h1 {
+    text-align: center;
+    margin: 1rem;
+}
 
 
 #game-results {
