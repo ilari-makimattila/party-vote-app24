@@ -22,7 +22,7 @@ def _unique_list_validator(items: list[T]) -> list[T]:
 Key = Annotated[str, Field(pattern=GAME_KEY_REGEX, min_length=1, max_length=32)]
 Name = Annotated[str, Field(pattern=GAME_NAME_REGEX, min_length=1, max_length=32)]
 Text = Annotated[str, Field(min_length=0)]
-Char = Annotated[str, Field(min_length=1, max_length=1)]
+Char = Annotated[str, Field(min_length=1, max_length=2)]  # you know, some emojis have a lot of character
 Value = int
 UniqueList = Annotated[list[T], AfterValidator(_unique_list_validator)]
 
@@ -48,11 +48,12 @@ class VoteItem(Model):
     options: UniqueList[Choice]
 
     @classmethod
-    def new(cls, title: Text, text: Text, options: list[Choice]) -> "VoteItem":
+    def new(cls, title: Text, text: Text, options: list[Choice], icon: Char | None = None) -> "VoteItem":
         return VoteItem(
             key=GAME_KEY_SANITIZE_REGEX.sub("-", title.lower()).strip("-"),
             title=title,
             text=text,
+            icon=icon,
             options=options,
         )
 
