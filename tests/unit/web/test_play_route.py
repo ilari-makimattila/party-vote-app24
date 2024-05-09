@@ -274,6 +274,40 @@ def post_play_item_vote_should_return_303_to_results_if_all_items_have_been_vote
     assert response.headers["Location"] == f"/game/{game.key}/results"
 
 
+def post_play_item_vote_should_return_400_and_the_page_if_vote_is_missing(
+    testclient: TestClient,
+    database: Database,
+    game: Game,
+) -> None:
+    database.join_game(game.key, "My Name")
+    testclient.cookies.set("player_name", "My Name")
+    result = testclient.post(
+        f"/game/{game.key}/item/{game.items[1].key}",
+        follow_redirects=False,
+        data={"game_key": game.key, "item_key": game.items[1].key},
+    )
+    assert result.status_code == 400
+    page = GameItemPage(result)
+    assert page.vote_form()
+
+
+def post_play_item_vote_should_return_400_and_the_page_if_vote_is_invalid(
+    testclient: TestClient,
+    database: Database,
+    game: Game,
+) -> None:
+    database.join_game(game.key, "My Name")
+    testclient.cookies.set("player_name", "My Name")
+    result = testclient.post(
+        f"/game/{game.key}/item/{game.items[1].key}",
+        follow_redirects=False,
+        data={"game_key": game.key, "item_key": game.items[1].key, "vote": "invalid"},
+    )
+    assert result.status_code == 400
+    page = GameItemPage(result)
+    assert page.vote_form()
+
+
 def play_item_page_should_show_link_to_next_item(testclient: TestClient, database: Database, game: Game) -> None:
     database.join_game(game.key, "My Name")
     testclient.cookies.set("player_name", "My Name")
@@ -399,5 +433,4 @@ def play_item_page_should_have_results_list_as_hx_get(
     assert div
     assert div.attrs["hx-get"] == f"/game/{game.key}/results.htmx"
     assert "load" in div.attrs["hx-trigger"]
-    assert "delay" in div.attrs["hx-trigger"]
     assert "outerHTML" in div.attrs["hx-swap"]

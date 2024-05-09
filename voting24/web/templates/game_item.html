@@ -28,5 +28,5 @@
     {% include "partials/vote.html" %}
 </div>
 
-<div id="game-results" hx-get="/game/{{game.key}}/results.htmx" hx-trigger="load delay:2s" hx-swap="outerHTML"></div>
+<div id="game-results" hx-get="/game/{{game.key}}/results.htmx" hx-trigger="load" hx-swap="outerHTML"></div>
 {% endblock %}

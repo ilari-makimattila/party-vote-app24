@@ -27,6 +27,18 @@ class PlayerNotFoundError(DatabaseError):
         self.game_name = game_name
 
 
+class VoteItemNotFoundError(DatabaseError):
+    def __init__(self, item_key: Key, game_name: str) -> None:
+        super().__init__(f"Item {item_key} not found in game {game_name}")
+        self.item_key = item_key
+
+
+class ChoiceNotFoundError(DatabaseError):
+    def __init__(self, key: Key, item_key: Key, game_name: str) -> None:
+        super().__init__(f"Choice {key} not found from item {item_key} in game {game_name}")
+        self.key = key
+
+
 class Database(ABC):
     @abstractmethod
     def save_game(self, game: Game) -> None:
@@ -68,6 +80,11 @@ class InMemoryDatabase(Database):
 
     def vote(self, player_name: Name, game_key: Key, item_key: Key, vote_key: Key) -> None:
         game = self.load_game(game_key)
+        item = next((item for item in game.items if item.key == item_key), None)
+        if not item:
+            raise VoteItemNotFoundError(item_key, game.name)
+        if not next((option for option in item.options if option.key == vote_key), None):
+            raise ChoiceNotFoundError(vote_key, item_key, game.name)
         for player in game.players:
             if player.name == player_name:
                 player.votes[item_key] = vote_key

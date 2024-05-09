@@ -4,7 +4,7 @@ from fastapi import Cookie, Depends, Form, HTTPException, Response
 from fastapi.responses import RedirectResponse
 from fastapi.routing import APIRouter
 
-from voting24.db.database import Database, GameNotFoundError
+from voting24.db.database import ChoiceNotFoundError, Database, GameNotFoundError, VoteItemNotFoundError
 from voting24.game.game import Game, Key, Name
 from voting24.web.dependencies import TemplateResponse, get_database, template
 
@@ -73,12 +73,13 @@ def play_item(
 
 
 @router.post("/item/{item_key}")
-def vote_item(
+def vote_item(  # noqa: PLR0913, PLR0917
     game: Annotated[Game, Depends(get_game)],
+    database: Annotated[Database, Depends(get_database)],
+    template: Annotated[TemplateResponse, Depends(template)],
     player_name: Annotated[Name, Depends(get_player)],
     item_key: Key,
-    vote: Annotated[Key, Form()],
-    database: Annotated[Database, Depends(get_database)],
+    vote: Annotated[Key | None, Form()] = None,
 ) -> Response:
     player = game.player(player_name)
     if player is None:
@@ -88,7 +89,31 @@ def vote_item(
     if not item:
         raise HTTPException(status_code=404, detail=f"Item {item_key} not found in game {game.name}")
 
-    database.vote(player_name, game.key, item_key, vote)
+    if not vote:
+        return template(
+            "game_item.html",
+            {
+                "game": game,
+                "item": item,
+                "player_name": player_name,
+                "player": player,
+            },
+            status_code=400,
+        )
+
+    try:
+        database.vote(player_name, game.key, item_key, vote)
+    except (VoteItemNotFoundError, ChoiceNotFoundError):
+        return template(
+            "game_item.html",
+            {
+                "game": game,
+                "item": item,
+                "player_name": player_name,
+                "player": player,
+            },
+            status_code=400,
+        )
 
     next_unvoted_item = game.next_unvoted_item(player_name)
     if not next_unvoted_item:
