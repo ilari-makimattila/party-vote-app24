@@ -4,16 +4,35 @@ from voting24.db.database import InMemoryDatabase
 from voting24.game.game import Choice, Game, VoteItem
 
 _default_choices = [
-    Choice(key="hateit", text="I hate it", value=-2),
-    Choice(key="dislikeit", text="I dislike it", value=-1),
-    Choice(key="neutral", text="I don't know", value=0),
-    Choice(key="likeit", text="I like it", value=1),
-    Choice(key="loveit", text="I love it", value=2),
+    Choice(key="hateit", text="🤮", value=-2),
+    Choice(key="dislikeit", text="🤢", value=-1),
+    Choice(key="neutral", text="🤷", value=0),
+    Choice(key="likeit", text="🤩", value=1),
+    Choice(key="loveit", text="😍", value=2),
+    Choice(key="absolutefav", text="💖", value=4),
 ]
 
 _hardcoded_eurovision24_game = Game(
     key="eurovision24",
     name="Eurovision 2024",
+    css="""
+h1 {
+    padding: 1em 0;
+    background: url(https://eurovision.tv/themes/custom/ebu_esc/html/public/assets/images/web-header-2023.gif);
+    background-size: auto;
+    background-size: auto 100%;
+    margin: 0 auto;
+    position: absolute;
+    width: 100%;
+    left: 0;
+    top: 0;
+    height: 3em;
+}
+
+.container {
+    margin-top: 7em;
+}
+""",
     players=[],
     items=[
         VoteItem.new(
