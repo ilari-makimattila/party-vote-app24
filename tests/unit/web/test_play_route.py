@@ -317,3 +317,19 @@ def play_item_page_should_show_link_to_results_on_last_item_page(
     assert response.status_code == 200
     page = GameItemPage(response)
     assert page.results_link().attrs["href"] == f"/game/{game.key}/results"
+
+
+def post_play_item_vote_should_have_previously_voted_item_as_checked(
+    testclient: TestClient,
+    database: Database,
+    game: Game,
+) -> None:
+    database.join_game(game.key, "My Name")
+    database.vote("My Name", game.key, game.items[1].key, game.items[1].options[0].key)
+    testclient.cookies.set("player_name", "My Name")
+    response = testclient.get(f"/game/{game.key}/item/{game.items[1].key}")
+    assert response.status_code == 200
+    page = GameItemPage(response)
+    selected = page.vote_form().select_one("input[name=vote][checked]")
+    assert selected
+    assert selected.attrs["value"] == game.items[1].options[0].key

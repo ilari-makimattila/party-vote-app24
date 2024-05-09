@@ -4,7 +4,7 @@
     <div role="group" class="segmented-control">
         {% for option in item.options %}
         <label>
-            <input type="radio" name="vote" value="{{option.key}}">
+            <input type="radio" name="vote" value="{{option.key}}" {{'checked' if player and player.votes.get(item.key) == option.key}}>
             <span>{{option.text}}</span>
         </label>
         {% endfor %}
