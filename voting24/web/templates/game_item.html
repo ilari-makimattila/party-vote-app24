@@ -3,7 +3,7 @@
 
 {% block content %}
 <h1>{{game.name}}</h1>
-<h2>{{item.title}}</h2>
+<h2>{% if item.icon %}<span class="item-icon">{{item.icon}}</span> {% endif %}{{item.title}}</h2>
 <div><p>{{item.text}}</p></div>
 
 {% with %}

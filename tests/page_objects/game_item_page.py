@@ -23,3 +23,6 @@ class GameItemPage(PageBase):
         link = self.css.select_one(".goto.results")
         assert link
         return link
+
+    def vote_item_icon(self) -> Tag | None:
+        return self.css.select_one(".item-icon")

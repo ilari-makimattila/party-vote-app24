@@ -110,6 +110,21 @@ def play_item_page_should_show_vote_item_in_title(testclient: TestClient, databa
     assert "Vote item 1" in page.title()
 
 
+def play_item_page_should_show_vote_item_icon_when_set(testclient: TestClient, database: Database, game: Game) -> None:
+    database.join_game(game.key, "My Name")
+    testclient.cookies.set("player_name", "My Name")
+    game.items[0].icon = "♥"
+    response = testclient.get(
+        f"/game/{game.key}/item/key1",
+        follow_redirects=False,
+    )
+    assert response.status_code == 200
+    page = GameItemPage(response)
+    icon = page.vote_item_icon()
+    assert icon
+    assert "♥" in icon.text
+
+
 def play_item_page_should_show_vote_form(testclient: TestClient, database: Database, game: Game) -> None:
     database.join_game(game.key, "My Name")
     testclient.cookies.set("player_name", "My Name")
