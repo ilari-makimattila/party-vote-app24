@@ -4,6 +4,11 @@
 {% block content %}
 <h1>{{game.name}}</h1>
 
+<nav>
+    <a class="goto first-item" href="/game/{{game.key}}/item/{{game.items[0].key}}">Back to start</a>
+</nav>
+
+
 <div id="game-results-container">
     {% include "partials/game_results.html" %}
 </div>

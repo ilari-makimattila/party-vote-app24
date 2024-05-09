@@ -1,3 +1,4 @@
+from bs4 import Tag
 from fastapi.testclient import TestClient
 
 from tests.page_objects.base import PageBase
@@ -27,3 +28,13 @@ class GameResultsPage(PageBase):
             results.append((title.text, int(score.text)))
 
         return results
+
+    def first_item_link(self) -> Tag:
+        first_item_link = self.css.select_one(".goto.first-item")
+        assert first_item_link
+        return first_item_link
+
+    def all_item_links(self) -> list[Tag]:
+        item_links = self.css.select(".goto.item")
+        assert item_links
+        return item_links

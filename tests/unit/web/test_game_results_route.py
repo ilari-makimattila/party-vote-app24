@@ -28,3 +28,19 @@ def game_results_page_should_have_correct_results(testclient: TestClient, finish
     results = page.results()
     assert results[0] == (finished_game.items[1].title, 2)
     assert results[1] == (finished_game.items[0].title, -2)
+
+
+def game_results_page_should_have_a_link_to_the_first_item(testclient: TestClient, finished_game: Game) -> None:
+    page = GameResultsPage.open(testclient, finished_game.key)
+    assert page.response.status_code == 200
+    first_item_link = page.first_item_link()
+    assert first_item_link.attrs["href"] == f"/game/{finished_game.key}/item/{finished_game.items[0].key}"
+
+
+def game_results_page_should_have_links_to_all_items(testclient: TestClient, finished_game: Game) -> None:
+    page = GameResultsPage.open(testclient, finished_game.key)
+    assert page.response.status_code == 200
+    item_links = page.all_item_links()
+    assert len(item_links) == len(finished_game.items)
+    assert item_links[0].attrs["href"] == f"/game/{finished_game.key}/item/{finished_game.items[1].key}"
+    assert item_links[1].attrs["href"] == f"/game/{finished_game.key}/item/{finished_game.items[0].key}"
