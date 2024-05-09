@@ -32,9 +32,25 @@ def _render(file_path: Path) -> str:
     return result.stdout
 
 
+script_router = APIRouter(
+    prefix="/js",
+)
+
 style_router = APIRouter(
     prefix="/css",
 )
+
+
+@script_router.get("/npm/{script_file:path}.js")
+def serve_npm_script(script_file: Annotated[str, Field(pattern=r"^[\w\-]+((\.|/)([\w\-]+))*$")]) -> Response:
+    file_path = Path("node_modules") / (script_file + ".js")
+    full_path = _ui_path / file_path
+    if not full_path.is_absolute() or not full_path.exists():
+        raise HTTPException(status_code=404)
+    return Response(
+        (_ui_path / file_path).read_text(),
+        media_type="text/javascript",
+    )
 
 
 @style_router.get("/{css_file:path}.css")

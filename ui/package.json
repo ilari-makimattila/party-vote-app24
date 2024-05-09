@@ -12,6 +12,7 @@
   "description": "",
   "dependencies": {
     "@picocss/pico": "^2.0.6",
+    "htmx.org": "^1.9.12",
     "sass": "^1.77.0"
   }
 }
