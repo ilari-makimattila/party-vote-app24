@@ -20,3 +20,11 @@ def game_results_page_should_contain_all_game_items(testclient: TestClient, fini
     assert page.response.status_code == 200
     results = page.results()
     assert len(results) == len(finished_game.items)
+
+
+def game_results_page_should_have_correct_results(testclient: TestClient, finished_game: Game) -> None:
+    page = GameResultsPage.open(testclient, finished_game.key)
+    assert page.response.status_code == 200
+    results = page.results()
+    assert results[0] == (finished_game.items[1].title, 2)
+    assert results[1] == (finished_game.items[0].title, -2)

@@ -1,10 +1,8 @@
 <div id="game-results">
-    {% for item in game.items %}
+    {% for key, value in game.points() | dictsort(false, 'value', reverse=True) %}
     <div class="result">
-        <h3 class="title">{{item.title}}</h3>
-        <span class="score">
-            0
-        </span>
+        <h3 class="title">{{key.title}}</h3>
+        <span class="score">{{value}}</span>
     </div>
     {% endfor %}
 </div>
