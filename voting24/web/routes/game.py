@@ -5,7 +5,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.routing import APIRouter
 
 from voting24.db.database import Database, GameNotFoundError, PlayerAlreadyExistsError
-from voting24.game.game import Key
+from voting24.game.game import Key, Name
 from voting24.web.dependencies import TemplateResponse, get_database, template
 
 router = APIRouter()
@@ -25,7 +25,7 @@ def join_game(
     database: Annotated[Database, Depends(get_database)],
     template: Annotated[TemplateResponse, Depends(template)],
     key: Key,
-    player_name: Annotated[str, Form()],
+    player_name: Annotated[Name, Form()],
     force: Annotated[int, Form()] = 0,
 ) -> Response:
     try:

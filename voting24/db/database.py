@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from voting24.game.game import Game, Key, Player
+from voting24.game.game import Game, Key, Name, Player
 
 
 class DatabaseError(Exception):
@@ -37,11 +37,11 @@ class Database(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def join_game(self, key: Key, player_name: str, *, join_as_existing: bool = False) -> Player:
+    def join_game(self, key: Key, player_name: Name, *, join_as_existing: bool = False) -> Player:
         raise NotImplementedError
 
     @abstractmethod
-    def vote(self, player_name: str, game_key: Key, item_key: Key, vote_key: Key) -> None:
+    def vote(self, player_name: Name, game_key: Key, item_key: Key, vote_key: Key) -> None:
         raise NotImplementedError
 
 
@@ -58,7 +58,7 @@ class InMemoryDatabase(Database):
         except KeyError:
             raise GameNotFoundError(key) from None
 
-    def join_game(self, key: Key, player_name: str, *, join_as_existing: bool = False) -> Player:
+    def join_game(self, key: Key, player_name: Name, *, join_as_existing: bool = False) -> Player:
         game = self.load_game(key)
         if not join_as_existing and player_name in (player.name for player in game.players):
             raise PlayerAlreadyExistsError(game.name, player_name)
@@ -66,7 +66,7 @@ class InMemoryDatabase(Database):
         self.games[key].players.append(player)
         return player
 
-    def vote(self, player_name: str, game_key: Key, item_key: Key, vote_key: Key) -> None:
+    def vote(self, player_name: Name, game_key: Key, item_key: Key, vote_key: Key) -> None:
         game = self.load_game(game_key)
         for player in game.players:
             if player.name == player_name:

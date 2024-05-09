@@ -5,7 +5,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.routing import APIRouter
 
 from voting24.db.database import Database, GameNotFoundError
-from voting24.game.game import Game, Key
+from voting24.game.game import Game, Key, Name
 from voting24.web.dependencies import TemplateResponse, get_database, template
 
 router = APIRouter(
@@ -25,7 +25,7 @@ def get_game(
 
 def get_player(
     key: Key,
-    player_name: Annotated[str | None, Cookie()] = None,
+    player_name: Annotated[Name | None, Cookie()] = None,
 ) -> str:
     if not player_name:
         raise HTTPException(status_code=303, headers={"Location": f"/game/{key}"})
@@ -36,7 +36,7 @@ def get_player(
 def forward_to_unvoted(
     key: Key,
     game: Annotated[Game, Depends(get_game)],
-    player_name: Annotated[str, Depends(get_player)],
+    player_name: Annotated[Name, Depends(get_player)],
 ) -> Response:
     if not player_name:
         return RedirectResponse(f"/game/{key}", status_code=303)
@@ -49,7 +49,7 @@ def forward_to_unvoted(
 @router.get("/item/{item_key}")
 def play_item(
     game: Annotated[Game, Depends(get_game)],
-    player_name: Annotated[str, Depends(get_player)],
+    player_name: Annotated[Name, Depends(get_player)],
     template: Annotated[TemplateResponse, Depends(template)],
     key: Key,
     item_key: Key,
@@ -75,7 +75,7 @@ def play_item(
 @router.post("/item/{item_key}")
 def vote_item(
     game: Annotated[Game, Depends(get_game)],
-    player_name: Annotated[str, Depends(get_player)],
+    player_name: Annotated[Name, Depends(get_player)],
     item_key: Key,
     vote: Annotated[Key, Form()],
     database: Annotated[Database, Depends(get_database)],

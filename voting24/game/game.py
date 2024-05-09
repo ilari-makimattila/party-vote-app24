@@ -6,6 +6,7 @@ from pydantic import AfterValidator, Field
 from voting24.game.model import Model
 
 GAME_KEY_REGEX = re.compile(r"^[\w-]+$")
+GAME_NAME_REGEX = re.compile(r"^[\w\- ]+$")
 GAME_KEY_SANITIZE_REGEX = re.compile(r"[^\w-]+")
 
 T = TypeVar("T")
@@ -19,6 +20,7 @@ def _unique_list_validator(items: list[T]) -> list[T]:
 
 
 Key = Annotated[str, Field(pattern=GAME_KEY_REGEX, min_length=1, max_length=32)]
+Name = Annotated[str, Field(pattern=GAME_NAME_REGEX, min_length=1, max_length=32)]
 Text = Annotated[str, Field(min_length=1, max_length=32)]
 Value = int
 UniqueList = Annotated[list[T], AfterValidator(_unique_list_validator)]
@@ -50,7 +52,7 @@ class VoteItem(Model):
 
 
 class Player(Model):
-    name: Text
+    name: Name
     votes: dict[Key, Key]
 
     @classmethod
@@ -96,12 +98,12 @@ class Game(Model):
             in self.items
         }
 
-    def next_unvoted_item(self, player_name: Text) -> Key | None:
+    def next_unvoted_item(self, player_name: Name) -> Key | None:
         votes = next((player.votes for player in self.players if player.name == player_name), {})
         for item in self.items:
             if item.key not in votes:
                 return item.key
         return None
 
-    def player(self, player_name: Text) -> Player | None:
+    def player(self, player_name: Name) -> Player | None:
         return next((player for player in self.players if player.name == player_name), None)
