@@ -8,6 +8,7 @@ from fastapi.templating import Jinja2Templates
 from starlette.background import BackgroundTask
 
 from voting24.db.database import Database
+from voting24.db.hardcoded_eurovision24_game import hardcoded_datatabase
 
 _templates = Jinja2Templates(directory="voting24/web/templates")
 
@@ -26,7 +27,7 @@ class TemplateResponse(Protocol):
 
 
 def get_database() -> Database:
-    raise NotImplementedError
+    return hardcoded_datatabase
 
 
 def template(request: Request) -> TemplateResponse:

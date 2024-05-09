@@ -21,7 +21,7 @@ def _unique_list_validator(items: list[T]) -> list[T]:
 
 Key = Annotated[str, Field(pattern=GAME_KEY_REGEX, min_length=1, max_length=32)]
 Name = Annotated[str, Field(pattern=GAME_NAME_REGEX, min_length=1, max_length=32)]
-Text = Annotated[str, Field(min_length=1, max_length=32)]
+Text = Annotated[str, Field(min_length=1, max_length=256)]
 Value = int
 UniqueList = Annotated[list[T], AfterValidator(_unique_list_validator)]
 
@@ -43,6 +43,15 @@ class VoteItem(Model):
     title: Text
     text: Text
     options: UniqueList[Choice]
+
+    @classmethod
+    def new(cls, title: Text, text: Text, options: list[Choice]) -> "VoteItem":
+        return VoteItem(
+            key=GAME_KEY_SANITIZE_REGEX.sub("-", title.lower()).strip("-"),
+            title=title,
+            text=text,
+            options=options,
+        )
 
     def __hash__(self) -> int:
         return hash(self.key)
