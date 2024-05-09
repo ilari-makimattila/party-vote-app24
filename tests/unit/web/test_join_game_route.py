@@ -5,7 +5,7 @@ from voting24.db.database import Database
 from voting24.game.game import Game
 
 
-def join_game_post_should_return_404_if_game_does_not_exist(testclient: TestClient, game: Game) -> None:
+def join_game_post_should_return_404_if_game_does_not_exist(testclient: TestClient) -> None:
     response = testclient.post(
         "/game/unknowngame/join",
         data={"player_name": "My Name"},

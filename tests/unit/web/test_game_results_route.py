@@ -4,7 +4,7 @@ from tests.page_objects.game_results_page import GameResultsPage
 from voting24.game.game import Game
 
 
-def game_results_page_should_return_404_if_game_is_not_found(testclient: TestClient, finished_game: Game) -> None:
+def game_results_page_should_return_404_if_game_is_not_found(testclient: TestClient) -> None:
     page = GameResultsPage.open(testclient, "some-key")
     assert page.response.status_code == 404
 

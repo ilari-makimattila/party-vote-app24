@@ -5,7 +5,7 @@ from voting24.db.database import Database
 from voting24.game.game import Game
 
 
-def play_item_should_return_404_if_game_does_not_exist(testclient: TestClient, game: Game) -> None:
+def play_item_should_return_404_if_game_does_not_exist(testclient: TestClient) -> None:
     testclient.cookies.set("player_name", "My Name")
     response = testclient.get(
         "/game/unknowngame/item",
@@ -56,7 +56,7 @@ def play_item_should_return_303_to_first_unvoted_item(testclient: TestClient, da
     assert response.headers["Location"] == f"/game/{game.key}/item/key2"
 
 
-def play_item_page_should_return_404_if_game_does_not_exist(testclient: TestClient, game: Game) -> None:
+def play_item_page_should_return_404_if_game_does_not_exist(testclient: TestClient) -> None:
     testclient.cookies.set("player_name", "My Name")
     response = testclient.get(
         "/game/unknowngame/item/foo",

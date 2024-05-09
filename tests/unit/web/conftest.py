@@ -1,5 +1,3 @@
-from collections.abc import Generator
-
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -10,22 +8,20 @@ from voting24.web.dependencies import get_database
 
 
 @pytest.fixture()
-def app() -> FastAPI:
+def database() -> Database:
+    return InMemoryDatabase()
+
+
+@pytest.fixture()
+def app(database: Database) -> FastAPI:
     from voting24.web.app import app
+    app.dependency_overrides[get_database] = lambda: database
     return app
 
 
 @pytest.fixture()
 def testclient(app: FastAPI) -> TestClient:
     return TestClient(app)
-
-
-@pytest.fixture()
-def database(app: FastAPI) -> Generator[Database, None, None]:
-    db = InMemoryDatabase()
-    app.dependency_overrides[get_database] = lambda: db
-    yield db
-    del app.dependency_overrides[get_database]
 
 
 @pytest.fixture()
