@@ -208,3 +208,53 @@ def game_votes_should_list_all_votes_with_players() -> None:
         game.items[1]: [players[1]],
         game.items[2]: [],
     }
+
+
+def game_previous_item_should_be_none_for_first_item() -> None:
+    game = Game(
+        key="key",
+        name="name",
+        items=[
+            VoteItem(key="itemkey", title="text", text="text", options=[]),
+        ],
+        players=[],
+    )
+    assert game.previous_item(game.items[0]) is None
+
+
+def game_previous_item_should_the_previous_item() -> None:
+    game = Game(
+        key="key",
+        name="name",
+        items=[
+            VoteItem(key="itemkey", title="text", text="text", options=[]),
+            VoteItem(key="itemkey2", title="text", text="text", options=[]),
+        ],
+        players=[],
+    )
+    assert game.previous_item(game.items[1]) == game.items[0]
+
+
+def game_next_item_should_be_none_for_last_item() -> None:
+    game = Game(
+        key="key",
+        name="name",
+        items=[
+            VoteItem(key="itemkey", title="text", text="text", options=[]),
+        ],
+        players=[],
+    )
+    assert game.next_item(game.items[0]) is None
+
+
+def game_next_item_should_the_next_item() -> None:
+    game = Game(
+        key="key",
+        name="name",
+        items=[
+            VoteItem(key="itemkey", title="text", text="text", options=[]),
+            VoteItem(key="itemkey2", title="text", text="text", options=[]),
+        ],
+        players=[],
+    )
+    assert game.next_item(game.items[0]) == game.items[1]

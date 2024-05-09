@@ -105,5 +105,17 @@ class Game(Model):
                 return item.key
         return None
 
+    def previous_item(self, item: VoteItem) -> VoteItem | None:
+        index = self.items.index(item)
+        if index > 0:
+            return self.items[index - 1]
+        return None
+
+    def next_item(self, item: VoteItem) -> VoteItem | None:
+        index = self.items.index(item)
+        if index < len(self.items) - 1:
+            return self.items[index + 1]
+        return None
+
     def player(self, player_name: Name) -> Player | None:
         return next((player for player in self.players if player.name == player_name), None)
