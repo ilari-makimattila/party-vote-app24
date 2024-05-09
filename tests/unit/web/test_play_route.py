@@ -380,3 +380,24 @@ def post_play_item_vote_should_have_previously_voted_item_as_checked(
     selected = page.vote_form().select_one("input[name=vote][checked]")
     assert selected
     assert selected.attrs["value"] == game.items[1].options[0].key
+
+
+def play_item_page_should_have_results_list_as_hx_get(
+    testclient: TestClient,
+    database: Database,
+    game: Game,
+) -> None:
+    database.join_game(game.key, "My Name")
+    testclient.cookies.set("player_name", "My Name")
+    response = testclient.get(
+        f"/game/{game.key}/item/key1",
+        follow_redirects=False,
+    )
+    assert response.status_code == 200
+    page = GameItemPage(response)
+    div = page.css.select_one("#game-results")
+    assert div
+    assert div.attrs["hx-get"] == f"/game/{game.key}/results.htmx"
+    assert "load" in div.attrs["hx-trigger"]
+    assert "delay" in div.attrs["hx-trigger"]
+    assert "outerHTML" in div.attrs["hx-swap"]
