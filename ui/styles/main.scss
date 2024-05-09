@@ -10,6 +10,11 @@ h1 {
 
 
 #game-results {
+    table {
+        th, td {
+            padding: 0 var(--pico-form-element-spacing-horizontal);
+        }
+    }
     .title {
         white-space: nowrap;
     }
@@ -28,6 +33,10 @@ h1 {
                 background-color: var(--pico-ins-color);
             }
         }
+    }
+    .score {
+        font-weight: bold;
+        font-size: 1.2rem;
     }
 }
 
