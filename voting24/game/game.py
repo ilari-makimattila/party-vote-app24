@@ -76,15 +76,22 @@ class Game(Model):
     def points(self) -> dict[VoteItem, Value]:
         return {
             item: sum(
-                choice.value
-                for choice
-                in item.options
-                if choice.key in (
-                    player.votes.get(item.key)
-                    for player
-                    in self.players
-                )
+                next(choice.value for choice in item.options if choice.key == itemkey)
+                for itemkey
+                in [player.votes[item.key] for player in players]
             )
+            for item, players
+            in self.votes().items()
+        }
+
+    def votes(self) -> dict[VoteItem, list[Player]]:
+        return {
+            item: [
+                player
+                for player
+                in self.players
+                if player.votes.get(item.key)
+            ]
             for item
             in self.items
         }

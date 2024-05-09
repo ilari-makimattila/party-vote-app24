@@ -172,3 +172,39 @@ def game_next_unvoted_item_should_return_none_if_all_items_have_votes() -> None:
         ],
     )
     assert game.next_unvoted_item("name 1") is None
+
+
+def game_votes_should_list_all_votes_with_players() -> None:
+    players = [
+        Player(name="name 1", votes={
+            "itemkey": "choicekey1",
+        }),
+        Player(name="name 2", votes={
+            "itemkey": "choicekey2",
+            "itemkey2": "choicekey2",
+        }),
+    ]
+    game = Game(
+        key="key",
+        name="name",
+        items=[
+            VoteItem(key="itemkey", title="text", text="text", options=[
+                Choice(key="choicekey1", text="text", value=1),
+                Choice(key="choicekey2", text="text", value=2),
+            ]),
+            VoteItem(key="itemkey2", title="text", text="text", options=[
+                Choice(key="choicekey1", text="text", value=1),
+                Choice(key="choicekey2", text="text", value=2),
+            ]),
+            VoteItem(key="itemkey3", title="text", text="text", options=[
+                Choice(key="choicekey1", text="text", value=1),
+                Choice(key="choicekey2", text="text", value=2),
+            ]),
+        ],
+        players=players,
+    )
+    assert game.votes() == {
+        game.items[0]: [players[0], players[1]],
+        game.items[1]: [players[1]],
+        game.items[2]: [],
+    }
