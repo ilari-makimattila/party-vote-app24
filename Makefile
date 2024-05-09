@@ -17,3 +17,6 @@ test:
 
 watchtest:
 	@poetry run ptw . --patterns '*.py,*.toml,*.html'
+
+dev:
+	@poetry run fastapi dev voting24/web/app.py
