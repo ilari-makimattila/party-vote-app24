@@ -60,3 +60,15 @@ def get_results(
         return template("game_results.html", {"game": database.load_game(key)})
     except GameNotFoundError:
         return Response(status_code=404, content=f"Game {key} not found")
+
+
+@router.get("/game/{key}/results.htmx")
+def get_results_htmx(
+    database: Annotated[Database, Depends(get_database)],
+    template: Annotated[TemplateResponse, Depends(template)],
+    key: Key,
+) -> Response:
+    try:
+        return template("partials/game_results.html", {"game": database.load_game(key)})
+    except GameNotFoundError:
+        return Response(status_code=404, content=f"Game {key} not found")

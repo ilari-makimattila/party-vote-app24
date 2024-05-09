@@ -1,5 +1,6 @@
 from fastapi.testclient import TestClient
 
+from tests.page_objects.base import PageBase
 from tests.page_objects.game_results_page import GameResultsPage
 from voting24.game.game import Game
 
@@ -51,3 +52,24 @@ def game_results_page_should_have_links_to_all_items(testclient: TestClient, fin
     assert len(item_links) == len(finished_game.items)
     assert item_links[0].attrs["href"] == f"/game/{finished_game.key}/item/{finished_game.items[1].key}"
     assert item_links[1].attrs["href"] == f"/game/{finished_game.key}/item/{finished_game.items[0].key}"
+
+
+def game_results_htmx_should_return_404_if_game_is_not_found(testclient: TestClient) -> None:
+    result = testclient.get("/game/some-key/results.htmx")
+    assert result.status_code == 404
+
+
+def game_results_htmx_should_return_just_the_partial(testclient: TestClient, finished_game: Game) -> None:
+    result = testclient.get(f"/game/{finished_game.key}/results.htmx")
+    assert result.status_code == 200
+    assert "<html" not in result.text
+    assert "</html>" not in result.text
+
+
+def game_results_htmx_should_have_hx_get(testclient: TestClient, finished_game: Game) -> None:
+    result = testclient.get(f"/game/{finished_game.key}/results.htmx")
+    assert result.status_code == 200
+    page = PageBase(result)
+    div = page.css.select_one("#game-results")
+    assert div
+    assert div.attrs["hx-get"] == f"/game/{finished_game.key}/results.htmx"

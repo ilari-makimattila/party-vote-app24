@@ -1,7 +1,7 @@
 {% set points = game.points() | dictsort(false, 'value', reverse=True) %}
 {% set max_score = points[0][1] %}
 {% set min_score = points[-1][1] %}
-<div id="game-results">
+<div id="game-results" hx-get="/game/{{game.key}}/results.htmx" hx-trigger="every 2s" hx-swap="outerHTML">
     <table>
         <tbody>
         {% for key, value in points %}
