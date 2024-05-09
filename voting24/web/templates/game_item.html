@@ -5,6 +5,21 @@
 <h1>{{item.title}}</h1>
 <div><p>{{item.text}}</p></div>
 
+{% with %}
+{% set prev_item = game.previous_item(item) %}
+{% set next_item = game.next_item(item) %}
+<nav>
+    {% if prev_item %}
+    <a class="goto previous-item" href="/game/{{game.key}}/item/{{prev_item.key}}">Previous</a>
+    {% endif %}
+    {% if next_item %}
+    <a class="goto next-item" href="/game/{{game.key}}/item/{{next_item.key}}">Next</a>
+    {% endif %}
+
+    <a class="goto results" href="/game/{{game.key}}/results">Results</a>
+</nav>
+{% endwith %}
+
 <div id="vote-container">
     {% include "partials/vote.html" %}
 </div>

@@ -225,3 +225,95 @@ def post_play_item_vote_should_return_303_to_results_if_all_items_have_been_vote
     )
     assert response.status_code == 303
     assert response.headers["Location"] == f"/game/{game.key}/results"
+
+
+def play_item_page_should_show_link_to_next_item(testclient: TestClient, database: Database, game: Game) -> None:
+    database.join_game(game.key, "My Name")
+    testclient.cookies.set("player_name", "My Name")
+    response = testclient.get(
+        f"/game/{game.key}/item/key1",
+        follow_redirects=False,
+    )
+    assert response.status_code == 200
+    page = GameItemPage(response)
+    next_item_link = page.next_item_link()
+    assert next_item_link
+    assert next_item_link.attrs["href"] == f"/game/{game.key}/item/key2"
+
+
+def play_item_page_should_not_show_link_to_next_item_on_the_last_item(
+    testclient: TestClient,
+    database: Database,
+    game: Game,
+) -> None:
+    database.join_game(game.key, "My Name")
+    testclient.cookies.set("player_name", "My Name")
+    response = testclient.get(
+        f"/game/{game.key}/item/key2",
+        follow_redirects=False,
+    )
+    assert response.status_code == 200
+    page = GameItemPage(response)
+    assert not page.next_item_link()
+
+
+def play_item_page_should_show_link_to_previous_item(testclient: TestClient, database: Database, game: Game) -> None:
+    database.join_game(game.key, "My Name")
+    testclient.cookies.set("player_name", "My Name")
+    response = testclient.get(
+        f"/game/{game.key}/item/key2",
+        follow_redirects=False,
+    )
+    assert response.status_code == 200
+    page = GameItemPage(response)
+    previous_item_link = page.previous_item_link()
+    assert previous_item_link
+    assert previous_item_link.attrs["href"] == f"/game/{game.key}/item/key1"
+
+
+def play_item_page_should_not_show_link_to_previous_item_on_the_first_item(
+    testclient: TestClient,
+    database: Database,
+    game: Game,
+) -> None:
+    database.join_game(game.key, "My Name")
+    testclient.cookies.set("player_name", "My Name")
+    response = testclient.get(
+        f"/game/{game.key}/item/key1",
+        follow_redirects=False,
+    )
+    assert response.status_code == 200
+    page = GameItemPage(response)
+    assert not page.previous_item_link()
+
+
+def play_item_page_should_show_link_to_results_on_first_item_page(
+    testclient: TestClient,
+    database: Database,
+    game: Game,
+) -> None:
+    database.join_game(game.key, "My Name")
+    testclient.cookies.set("player_name", "My Name")
+    response = testclient.get(
+        f"/game/{game.key}/item/key1",
+        follow_redirects=False,
+    )
+    assert response.status_code == 200
+    page = GameItemPage(response)
+    assert page.results_link().attrs["href"] == f"/game/{game.key}/results"
+
+
+def play_item_page_should_show_link_to_results_on_last_item_page(
+    testclient: TestClient,
+    database: Database,
+    game: Game,
+) -> None:
+    database.join_game(game.key, "My Name")
+    testclient.cookies.set("player_name", "My Name")
+    response = testclient.get(
+        f"/game/{game.key}/item/key2",
+        follow_redirects=False,
+    )
+    assert response.status_code == 200
+    page = GameItemPage(response)
+    assert page.results_link().attrs["href"] == f"/game/{game.key}/results"

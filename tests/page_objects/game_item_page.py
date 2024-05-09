@@ -12,3 +12,14 @@ class GameItemPage(PageBase):
     def vote_form_fields(self) -> dict[str, Tag]:
         form = self.vote_form()
         return {inp.attrs["name"]: inp for inp in form.select("input")}
+
+    def next_item_link(self) -> Tag | None:
+        return self.css.select_one(".goto.next-item")
+
+    def previous_item_link(self) -> Tag | None:
+        return self.css.select_one(".goto.previous-item")
+
+    def results_link(self) -> Tag:
+        link = self.css.select_one(".goto.results")
+        assert link
+        return link
