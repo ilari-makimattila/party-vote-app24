@@ -45,7 +45,7 @@ def game(database: Database) -> Game:
 def finished_game(database: Database) -> Game:
     g = Game.new(name="finished game name")
     g.items = [
-        VoteItem(key="key1", title="Vote item 1", text="Vote item 1 description", options=[
+        VoteItem(key="key1", icon="👍", title="Vote item 1", text="Vote item 1 description", options=[
             Choice(key="choicekey1", text="Choice A", value=-1),
             Choice(key="choicekey2", text="Choice B", value=0),
             Choice(key="choicekey3", text="Choice C", value=1),

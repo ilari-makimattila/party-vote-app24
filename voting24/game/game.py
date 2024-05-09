@@ -21,7 +21,8 @@ def _unique_list_validator(items: list[T]) -> list[T]:
 
 Key = Annotated[str, Field(pattern=GAME_KEY_REGEX, min_length=1, max_length=32)]
 Name = Annotated[str, Field(pattern=GAME_NAME_REGEX, min_length=1, max_length=32)]
-Text = Annotated[str, Field(min_length=1, max_length=256)]
+Text = Annotated[str, Field(min_length=0)]
+Char = Annotated[str, Field(min_length=1, max_length=1)]
 Value = int
 UniqueList = Annotated[list[T], AfterValidator(_unique_list_validator)]
 
@@ -40,8 +41,10 @@ class Choice(Model):
 
 class VoteItem(Model):
     key: Key
+    icon: Char | None = None
     title: Text
     text: Text
+    image_url: Text | None = None
     options: UniqueList[Choice]
 
     @classmethod

@@ -6,7 +6,12 @@
         <tbody>
         {% for key, value in points %}
         <tr class="result">
-            <th class="title"><a class="goto item" href="/game/{{game.key}}/item/{{key.key}}">{{key.title}}</a></th>
+            <th class="title">
+                {% if key.icon %}
+                <span class="item-icon">{{key.icon}}</span>
+                {% endif %}
+                <a class="goto item item-title" href="/game/{{game.key}}/item/{{key.key}}">{{key.title}}</a>
+            </th>
             <td class="chart">
                 <progress class="losing" value="{{value | abs if value < 0 else 0}}" max="{{min_score | abs}}"></progress>
                 <progress class="winning" value="{{value if value > 0 else 0}}" max="{{max_score}}"></progress>

@@ -21,11 +21,11 @@ class GameResultsPage(PageBase):
         results = []
 
         for result_tag in result_tags:
-            title = result_tag.select_one(".title")
+            title = result_tag.select_one(".title .item-title")
             assert title
             score = result_tag.select_one(".score")
             assert score
-            results.append((title.text, int(score.text)))
+            results.append((title.text.strip(), int(score.text)))
 
         return results
 
@@ -38,3 +38,8 @@ class GameResultsPage(PageBase):
         item_links = self.css.select(".goto.item")
         assert item_links
         return item_links
+
+    def result_icons(self) -> list[Tag]:
+        result_icons = self.css.select(".item-icon")
+        assert result_icons
+        return result_icons

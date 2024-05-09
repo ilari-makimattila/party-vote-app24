@@ -22,6 +22,13 @@ def game_results_page_should_contain_all_game_items(testclient: TestClient, fini
     assert len(results) == len(finished_game.items)
 
 
+def game_results_page_should_contain_all_game_item_icons(testclient: TestClient, finished_game: Game) -> None:
+    page = GameResultsPage.open(testclient, finished_game.key)
+    assert page.response.status_code == 200
+    icons = page.result_icons()
+    assert len(icons) == len([item for item in finished_game.items if item.icon is not None])
+
+
 def game_results_page_should_have_correct_results(testclient: TestClient, finished_game: Game) -> None:
     page = GameResultsPage.open(testclient, finished_game.key)
     assert page.response.status_code == 200
