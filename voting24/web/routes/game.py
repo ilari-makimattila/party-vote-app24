@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import Depends, Form, HTTPException, Response
+from fastapi import Depends, Form, HTTPException, Query, Response
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.routing import APIRouter
 
@@ -67,9 +67,13 @@ def get_results_htmx(
     database: Annotated[Database, Depends(get_database)],
     template: Annotated[TemplateResponse, Depends(template)],
     key: Key,
+    original_order: Annotated[bool, Query()] = False,  # noqa: FBT002  # allow boolean args in routes
 ) -> Response:
     try:
-        return template("partials/game_results.html", {"game": database.load_game(key)})
+        return template("partials/game_results.html", {
+            "game": database.load_game(key),
+            "no_sort": original_order,
+        })
     except GameNotFoundError:
         return Response(status_code=404, content=f"Game {key} not found")
 

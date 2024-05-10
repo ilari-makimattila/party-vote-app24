@@ -445,6 +445,24 @@ def play_item_page_should_have_results_list_as_hx_get(
     page = GameItemPage(response)
     div = page.css.select_one("#game-results")
     assert div
-    assert div.attrs["hx-get"] == f"/game/{game.key}/results.htmx"
+    assert div.attrs["hx-get"].startswith(f"/game/{game.key}/results.htmx")
     assert "load" in div.attrs["hx-trigger"]
     assert "outerHTML" in div.attrs["hx-swap"]
+
+
+def play_item_page_should_request_results_in_original_order(
+    testclient: TestClient,
+    database: Database,
+    game: Game,
+) -> None:
+    database.join_game(game.key, "My Name")
+    testclient.cookies.set("player_name", "My Name")
+    response = testclient.get(
+        f"/game/{game.key}/item/key1",
+        follow_redirects=False,
+    )
+    assert response.status_code == 200
+    page = GameItemPage(response)
+    div = page.css.select_one("#game-results")
+    assert div
+    assert "original_order=true" in div.attrs["hx-get"]

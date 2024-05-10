@@ -72,4 +72,27 @@ def game_results_htmx_should_have_hx_get(testclient: TestClient, finished_game: 
     page = PageBase(result)
     div = page.css.select_one("#game-results")
     assert div
-    assert div.attrs["hx-get"] == f"/game/{finished_game.key}/results.htmx"
+    assert div.attrs["hx-get"].startswith(f"/game/{finished_game.key}/results.htmx")
+
+
+def game_results_htmx_should_not_sort_results_if_asked_not_to_sort(
+    testclient: TestClient,
+    finished_game: Game,
+) -> None:
+    result = testclient.get(f"/game/{finished_game.key}/results.htmx?original_order=true")
+    assert result.status_code == 200
+    page = GameResultsPage(result)
+    results = page.results()
+    assert results == [(finished_game.items[0].title, -2), (finished_game.items[1].title, 2)]
+
+
+def game_results_htmx_should_add_original_order_to_hx_get_when_asked(
+    testclient: TestClient,
+    finished_game: Game,
+) -> None:
+    result = testclient.get(f"/game/{finished_game.key}/results.htmx?original_order=true")
+    assert result.status_code == 200
+    page = PageBase(result)
+    div = page.css.select_one("#game-results")
+    assert div
+    assert "original_order=true" in div.attrs["hx-get"]
