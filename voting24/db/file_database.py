@@ -23,7 +23,7 @@ class FileDatabase(Database):
         game_path = self.path / f"{key}.json"
         if not game_path.exists():
             raise GameNotFoundError(key)
-        game = Game.parse_raw(game_path.read_text())
+        game = Game.model_validate_json(game_path.read_text())
         game.players = self._load_players(game.key)
         return game
 
@@ -61,4 +61,4 @@ class FileDatabase(Database):
         players_dir = self.path / game_key
         if not players_dir.exists():
             return []
-        return [Player.parse_raw(player_path.read_text()) for player_path in players_dir.glob("*.json")]
+        return [Player.model_validate_json(player_path.read_text()) for player_path in players_dir.glob("*.json")]
