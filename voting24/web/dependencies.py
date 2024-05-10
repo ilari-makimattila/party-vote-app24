@@ -1,5 +1,7 @@
 import logging
 from collections.abc import Mapping
+from os import environ
+from pathlib import Path
 from typing import Any, Protocol
 
 from fastapi import BackgroundTasks, Request
@@ -8,6 +10,7 @@ from fastapi.templating import Jinja2Templates
 from starlette.background import BackgroundTask
 
 from voting24.db.database import Database
+from voting24.db.file_database import FileDatabase
 from voting24.db.hardcoded_eurovision24_game import hardcoded_datatabase
 
 _templates = Jinja2Templates(directory="voting24/web/templates")
@@ -27,6 +30,12 @@ class TemplateResponse(Protocol):
 
 
 def get_database() -> Database:
+    if db_dir := environ.get("DATABASE_DIR"):
+        logging.info("Using file database with directory %s", db_dir)
+        db_path = Path(db_dir)
+        if not db_path.exists():
+            db_path.mkdir(parents=True)
+        return FileDatabase(db_path)
     return hardcoded_datatabase
 
 
