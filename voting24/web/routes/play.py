@@ -68,6 +68,7 @@ def play_item(
             "item": item,
             "player_name": player_name,
             "player": next((player for player in game.players if player.name == player_name), None),
+            "is_last_item": game.items.index(item) == len(game.items) - 1,
         },
     )
 

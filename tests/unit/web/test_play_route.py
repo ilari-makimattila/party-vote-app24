@@ -206,6 +206,19 @@ def play_item_page_vote_form_should_have_correct_route(testclient: TestClient, d
     assert vote_form.attrs["method"] == "POST"
 
 
+def play_item_page_should_not_add_hx_post_to_last_item(testclient: TestClient, database: Database, game: Game) -> None:
+    database.join_game(game.key, "My Name")
+    testclient.cookies.set("player_name", "My Name")
+    response = testclient.get(
+        f"/game/{game.key}/item/key2",
+        follow_redirects=False,
+    )
+    assert response.status_code == 200
+    page = GameItemPage(response)
+    form = page.vote_form()
+    assert "hx-post" not in form.attrs
+
+
 def post_play_item_vote_should_return_404_if_game_is_not_found(testclient: TestClient, game: Game) -> None:
     testclient.cookies.set("player_name", "My Name")
     response = testclient.post(
