@@ -4,12 +4,14 @@ RUN apt-get update && apt-get install -y nodejs npm --no-install-recommends && a
 
 RUN pip install poetry
 
+RUN useradd -m -u 1000 python
+
 WORKDIR /app
 
 COPY . .
 
 ENTRYPOINT ["poetry", "run", "fastapi", "run", "voting24/web/app.py", "--proxy-headers", "--port=80"]
 
-RUN (cd ui && npm install )
+RUN (cd ui && npm install)
+USER python
 RUN poetry install --no-root --only main
-
