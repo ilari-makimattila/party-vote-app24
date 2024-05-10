@@ -1,9 +1,7 @@
-{% extends "_base.html" %}
+{% extends "_base_game.html" %}
 {% block title %}{{game.name}} - {{item.title}}{% endblock %}
 
-{% block content %}
-<h1>{{game.name}}</h1>
-
+{% block game_content %}
 {% with %}
 {% set prev_item = game.previous_item(item) %}
 {% set next_item = game.next_item(item) %}
