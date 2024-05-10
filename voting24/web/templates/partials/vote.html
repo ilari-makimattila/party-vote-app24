@@ -1,4 +1,10 @@
-<form id="vote-form" method="POST" action="/game/{{game.key}}/item/{{item.key}}">
+<form id="vote-form" method="POST" action="/game/{{game.key}}/item/{{item.key}}"
+    {% if not is_last_item %}
+    hx-post="/game/{{game.key}}/item/{{item.key}}"
+    hx-swap="outerHTML"
+    hx-target="#game-item-container"
+    {% endif %}
+>
     <input type="hidden" name="game_key" value="{{game.key}}">
     <input type="hidden" name="item_key" value="{{item.key}}">
     <div role="group" class="segmented-control">

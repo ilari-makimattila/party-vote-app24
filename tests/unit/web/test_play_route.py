@@ -466,3 +466,143 @@ def play_item_page_should_request_results_in_original_order(
     div = page.css.select_one("#game-results")
     assert div
     assert "original_order=true" in div.attrs["hx-get"]
+
+
+def post_play_item_vote_htmx_should_return_404_if_game_is_not_found(testclient: TestClient, game: Game) -> None:
+    testclient.cookies.set("player_name", "My Name")
+    response = testclient.post(
+        f"/game/somenonexistinggame/item/{game.items[1].key}",
+        headers={"hx-request": "true"},
+        follow_redirects=False,
+        data={"game_key": game.key, "item_key": game.items[1].key, "vote": game.items[1].options[0].key},
+    )
+    print(response.text)
+    assert response.status_code == 404
+
+
+def post_play_item_vote_htmx_should_return_404_if_item_is_not_found(
+    testclient: TestClient,
+    database: Database,
+    game: Game,
+) -> None:
+    database.join_game(game.key, "My Name")
+    testclient.cookies.set("player_name", "My Name")
+    response = testclient.post(
+        f"/game/{game.key}/item/somenonexistingitem",
+        headers={"hx-request": "true"},
+        follow_redirects=False,
+        data={"game_key": game.key, "item_key": game.items[1].key, "vote": game.items[1].options[0].key},
+    )
+    assert response.status_code == 404
+
+
+def post_play_item_vote_htmx_should_return_404_if_player_does_not_exist(testclient: TestClient, game: Game) -> None:
+    testclient.cookies.set("player_name", "My Name")
+    response = testclient.post(
+        f"/game/{game.key}/item/{game.items[1].key}",
+        headers={"hx-request": "true"},
+        follow_redirects=False,
+        data={"game_key": game.key, "item_key": game.items[1].key, "vote": game.items[1].options[0].key},
+    )
+    assert response.status_code == 404
+
+
+def post_play_item_vote_htmx_should_save_the_vote_and_return_partial(
+    testclient: TestClient,
+    database: Database,
+    game: Game,
+) -> None:
+    database.join_game(game.key, "My Name")
+    testclient.cookies.set("player_name", "My Name")
+    response = testclient.post(
+        f"/game/{game.key}/item/{game.items[1].key}",
+        headers={"hx-request": "true"},
+        follow_redirects=False,
+        data={"game_key": game.key, "item_key": game.items[1].key, "vote": game.items[1].options[0].key},
+    )
+    assert response.status_code == 200
+    player = database.load_game(game.key).player("My Name")
+    assert player
+    assert player.votes == {game.items[1].key: game.items[1].options[0].key}
+    page = GameItemPage(response)
+    assert page.is_partial()
+    assert page.vote_form()
+
+
+def post_play_item_vote_htmx_should_return_the_next_item(
+    testclient: TestClient,
+    database: Database,
+    game: Game,
+) -> None:
+    database.join_game(game.key, "My Name")
+    testclient.cookies.set("player_name", "My Name")
+    response = testclient.post(
+        f"/game/{game.key}/item/{game.items[0].key}",
+        headers={"hx-request": "true"},
+        follow_redirects=False,
+        data={"game_key": game.key, "item_key": game.items[0].key, "vote": game.items[0].options[0].key},
+    )
+    print(response.text)
+    assert response.status_code == 200
+    assert response.headers["hx-push-url"] == f"/game/{game.key}/item/{game.items[1].key}"
+    page = GameItemPage(response)
+    assert page.is_partial()
+    form = page.vote_form()
+    assert form.attrs["action"] == f"/game/{game.key}/item/{game.items[1].key}"
+
+
+def post_play_item_vote_should_not_set_hx_attrs_on_the_last_item(
+    testclient: TestClient,
+    database: Database,
+    game: Game,
+) -> None:
+    database.join_game(game.key, "My Name")
+    testclient.cookies.set("player_name", "My Name")
+    response = testclient.post(
+        f"/game/{game.key}/item/{game.items[0].key}",
+        headers={"hx-request": "true"},
+        follow_redirects=False,
+        data={"game_key": game.key, "item_key": game.items[0].key, "vote": game.items[0].options[0].key},
+    )
+    assert response.status_code == 200
+    page = GameItemPage(response)
+    form = page.vote_form()
+    assert "hx-post" not in form.attrs
+
+
+def post_play_item_vote_htmx_should_return_400_and_the_page_if_vote_is_missing(
+    testclient: TestClient,
+    database: Database,
+    game: Game,
+) -> None:
+    database.join_game(game.key, "My Name")
+    testclient.cookies.set("player_name", "My Name")
+    result = testclient.post(
+        f"/game/{game.key}/item/{game.items[1].key}",
+        headers={"hx-request": "true"},
+        follow_redirects=False,
+        data={"game_key": game.key, "item_key": game.items[1].key},
+    )
+    assert result.status_code == 400
+    page = GameItemPage(result)
+    assert page.is_partial()
+    assert page.vote_form()
+
+
+def post_play_item_vote_htmx_should_return_400_and_the_page_if_vote_is_invalid(
+    testclient: TestClient,
+    database: Database,
+    game: Game,
+) -> None:
+    database.join_game(game.key, "My Name")
+    testclient.cookies.set("player_name", "My Name")
+    result = testclient.post(
+        f"/game/{game.key}/item/{game.items[1].key}",
+        headers={"hx-request": "true"},
+        follow_redirects=False,
+        data={"game_key": game.key, "item_key": game.items[1].key, "vote": "invalid"},
+    )
+    assert result.status_code == 400
+    page = GameItemPage(result)
+    assert page.is_partial()
+    assert page.vote_form()

@@ -17,3 +17,6 @@ class PageBase:
         assert t
         assert t.string
         return t.string
+
+    def is_partial(self) -> bool:
+        return self.css.select_one("html") is None
