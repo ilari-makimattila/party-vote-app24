@@ -1,5 +1,6 @@
 import logging
 import subprocess  # noqa: S404
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Annotated
 
@@ -10,26 +11,42 @@ from pydantic import Field
 _ui_path = Path(__file__).parent.parent.parent / "ui"
 
 
+@dataclass
+class _CacheItem:
+    modified: float
+    output: str
+
+
+_rendering_cache: dict[Path, _CacheItem] = {}
+
+
 def _render(file_path: Path) -> str:
     if not (_ui_path / file_path).exists():
         raise HTTPException(status_code=404)
 
-    result = subprocess.run(
-        [  # noqa: S603  # it's not untrusted content
-            "/usr/bin/npx",
-            "sass",
-            "--no-source-map",
-            str(file_path),
-        ],
-        capture_output=True,
-        text=True,
-        cwd=str(_ui_path),
-        check=False,
-    )
-    if result.returncode != 0:
-        logging.error("sass error: %s", result.stderr)
-        raise HTTPException(status_code=500, detail=result.stderr)
-    return result.stdout
+    modified = (_ui_path / file_path).stat().st_mtime
+    output = None
+    if file_path not in _rendering_cache or _rendering_cache[file_path].modified < modified:
+        result = subprocess.run(
+            [  # noqa: S603  # it's not untrusted content
+                "/usr/bin/npx",
+                "sass",
+                "--no-source-map",
+                str(file_path),
+            ],
+            capture_output=True,
+            text=True,
+            cwd=str(_ui_path),
+            check=False,
+        )
+        if result.returncode != 0:
+            logging.error("sass error: %s", result.stderr)
+            raise HTTPException(status_code=500, detail=result.stderr)
+        output = result.stdout
+        _rendering_cache[file_path] = _CacheItem(modified, output)
+    else:
+        output = _rendering_cache[file_path].output
+    return output
 
 
 script_router = APIRouter(
