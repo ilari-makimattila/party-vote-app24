@@ -48,6 +48,18 @@ def join_game_post_should_set_cookie_and_redirect(testclient: TestClient, game: 
     assert response.headers["Location"] == f"/game/{game.key}/item"
 
 
+def join_game_post_should_trim_whitespace_from_username(testclient: TestClient, game: Game) -> None:
+    response = testclient.post(
+        f"/game/{game.key}/join",
+        data={"player_name": "  My Name  "},
+        follow_redirects=False,
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+    )
+    print(response.text)
+    assert response.status_code == 303
+    assert response.cookies["player_name"] == '"My Name"'
+
+
 def join_game_post_should_set_cookie_and_redirect_when_player_exists_and_join_as_existing(
     testclient: TestClient,
     database: Database,

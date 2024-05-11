@@ -28,6 +28,7 @@ def join_game(
     player_name: Annotated[Name, Form()],
     force: Annotated[int, Form()] = 0,
 ) -> Response:
+    player_name = player_name.strip()
     try:
         database.join_game(key, player_name, join_as_existing=force == 1)
     except PlayerAlreadyExistsError:
